@@ -1,0 +1,57 @@
+{
+  "name": "loopback-jsonapi-model-serializer",
+  "description": "JSONAPI Model serializer for loopback",
+  "version": "0.0.0",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/digitalsadhu/loopback-jsonapi-model-serializer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/digitalsadhu/loopback-jsonapi-model-serializer/issues"
+  },
+  "homepage": "https://github.com/digitalsadhu/loopback-jsonapi-model-serializer",
+  "author": {
+    "name": "Richard Walker",
+    "email": "digitalsadhu@gmail.com",
+    "url": "https://mediasuite.co.nz"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "lint": "standard --verbose | snazzy",
+    "pretest": "npm run lint",
+    "test:ci": "mocha --ui mocha-given -R spec test",
+    "test:dev": "testem .",
+    "test": "npm run test:ci",
+    "prepublish": "npm test && npm prune",
+    "preversion:patch": "npm run test",
+    "version:patch": "xyz -i patch",
+    "preversion:minor": "npm run test",
+    "version:minor": "xyz -i minor",
+    "preversion:major": "npm run test",
+    "version:major": "xyz -i major"
+  },
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org"
+  },
+  "keywords": [
+    "loopback",
+    "model",
+    "serializer",
+    "jsonapi"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "mocha-given": "^0.1.3",
+    "snazzy": "^4.0.0",
+    "standard": "^7.1.2",
+    "testem": "^1.10.0-1",
+    "xyz": "^0.5.0"
+  },
+  "peerDependencies": {}
+}
