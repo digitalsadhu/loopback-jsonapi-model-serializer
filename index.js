@@ -53,11 +53,9 @@ module.exports = (options = {baseUrl: '/'}) => {
   }
 
   function buildRelationships (data, model) {
-    // const relationshipNames = relationshipsForModel(model)
     const relationshipLinks = relationshipLinksFromData(data, model)
-    // const relationshipData = relationshipDataFromData(data, model)
-    return relationshipLinks
-    // return _.merge([relationshipLinks, relationshipData])
+    const relationshipData = relationshipDataFromData(data, model)
+    return _.merge(relationshipLinks, relationshipData)
   }
 
   function buildAttributes (data, model, opts = {}) {

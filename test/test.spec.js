@@ -412,3 +412,32 @@ test('relatedModelFromRelation Physician hasMany Patient through Appointment', t
   t.is(lib.pluralForModel(model), 'patients', `should equal 'patients'`)
 })
 
+test('buildRelations', t => {
+  t.plan(1)
+  const { Author } = t.context.app.models
+  const data = {id: 1, posts: [{id: 1}, {id: 2}, {id: 3}]}
+  const opts = {baseUrl: 'http://locahost:3000'}
+
+  const rels = serializer(opts).buildRelationships(data, Author)
+
+  const expected = {
+    posts: {
+      links: {
+        related: 'http://locahost:3000/authors/1/posts'
+      },
+      data: [
+        {id: 1, type: 'posts'},
+        {id: 2, type: 'posts'},
+        {id: 3, type: 'posts'}
+      ]
+    },
+    comments: {
+      links: {
+        related: 'http://locahost:3000/authors/1/comments'
+      }
+    }
+  }
+
+  t.deepEqual(rels, expected, `should match ${JSON.stringify(expected)}`)
+})
+

@@ -25,10 +25,8 @@ test.beforeEach(t => {
   Comment.belongsTo(Post)
   Post.hasMany(Comment)
   Post.belongsTo(Author)
-  // Parent.hasMany(Post, {polymorphic: {discriminator: 'parentType', foreignKey: 'parentId'}})
   Post.belongsTo('parent', {polymorphic: true})
   Post.hasAndBelongsToMany(Critic)
-  // Post.embedsOne(Author)
   Author.hasMany(Post)
   Author.hasMany(Comment, {through: Post})
 
@@ -125,36 +123,26 @@ test('resource miminal with baseUrl', t => {
 
 test('resource with attributes', t => {
   t.plan(1)
-  const { Post } = t.context.app.models
-  const data = {id: 1, other: 'custom', title: 'my title', content: 'my content'}
-  const options = {baseUrl: 'http://posts.com'}
+  const { Author } = t.context.app.models
+  const data = {id: 1, other: 'custom', name: 'joe bloggs'}
+  const options = {baseUrl: 'http://authors.com/api/'}
 
-  const resource = serializer(options).resource(data, Post)
+  const resource = serializer(options).resource(data, Author)
 
   const expected = {
     id: 1,
-    type: 'posts',
-    attributes: {title: 'my title', content: 'my content'},
-    links: {self: 'http://posts.com/posts/1'},
+    type: 'authors',
+    links: {self: 'http://authors.com/api/authors/1'},
+    attributes: {name: 'joe bloggs', email: undefined},
     relationships: {
+      posts: {
+        links: {
+          related: 'http://authors.com/api/authors/1/posts'
+        }
+      },
       comments: {
         links: {
-          related: 'http://posts.com/posts/1/comments'
-        }
-      },
-      author: {
-        links: {
-          related: 'http://posts.com/posts/1/author'
-        }
-      },
-      parent: {
-        links: {
-          related: 'http://posts.com/posts/1/parent'
-        }
-      },
-      critics: {
-        links: {
-          related: 'http://posts.com/posts/1/critics'
+          related: 'http://authors.com/api/authors/1/comments'
         }
       }
     }
