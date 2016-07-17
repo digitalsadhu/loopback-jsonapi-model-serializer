@@ -5,15 +5,15 @@ const url = require('url')
 
 module.exports = (options = {baseUrl: '/'}) => {
   function generateIncluded (included = [], data, model) {
-    const relations = model.relations
+    // const relations = model.relations
 
-    _.forOwn(relations, (relationDefn, relationName) => {
-      const relationModel = relatedModelFromRelation(relationDefn)
-      const relationData = nestedRelationData(relationName, data)
-      const jsonapi = buildJsonapi(relationModel, relationData)
-      included.push(jsonapi)
-      generateIncluded(included, relationData, relationModel)
-    })
+    // _.forOwn(relations, (relationDefn, relationName) => {
+      // const relationModel = relatedModelFromRelation(relationDefn)
+      // const relationData = nestedRelationData(relationName, data)
+      // const jsonapi = buildJsonapi(relationModel, relationData)
+      // included.push(jsonapi)
+      // generateIncluded(included, relationData, relationModel)
+    // })
   }
 
   function nestedRelationData (relationName, data) {
@@ -26,19 +26,6 @@ module.exports = (options = {baseUrl: '/'}) => {
 
   function pluralForModel (model) {
     return model.pluralModelName
-  }
-
-  function buildJsonapi (data, model) {
-    const pk = primaryKeyForModel(model)
-    const id = data[pk]
-    delete attributes[pk]
-    const type = pluralForModel(model)
-    const attributes = buildAttributes(data, model)
-    const relationships = buildRelationships(data, model)
-    const links = buildResourceLinks(data, model)
-
-    // TODO: use options to decide whether to delete fks as well
-    return formatJsonapi(id, type, attributes, relationships, links)
   }
 
   function cleanUrl (urlString) {
@@ -61,10 +48,6 @@ module.exports = (options = {baseUrl: '/'}) => {
   function buildAttributes (data, model, opts = {}) {
     const attributeNames = attributesForModel(model, opts)
     return attributesFromData(data, attributeNames)
-  }
-
-  function relationshipsForModel (model) {
-
   }
 
   function relationshipLinksFromData (data, model) {
@@ -158,11 +141,10 @@ module.exports = (options = {baseUrl: '/'}) => {
     nestedRelationData,
     primaryKeyForModel, // done
     pluralForModel, // done
-    buildJsonapi,
+    // buildJsonapi,
     buildResourceLinks, // done
-    buildRelationships,
+    buildRelationships, // done
     buildAttributes, // done
-    relationshipsForModel,
     relationshipLinksFromData, // done
     relationshipDataFromData, // done
     formatJsonapi, // done
