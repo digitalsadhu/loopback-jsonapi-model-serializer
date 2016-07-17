@@ -1,0 +1,414 @@
+import test from 'ava'
+import loopback from 'loopback'
+import serializer from '../'
+
+test.beforeEach(t => {
+  const app = t.context.app = loopback()
+  app.set('legacyExplorer', false)
+
+  const ds = loopback.createDataSource('memory')
+
+  const Post = ds.createModel('post', {title: String, content: String})
+  const Author = ds.createModel('author', {name: String, email: String})
+  const Comment = ds.createModel('comment', {title: String, comment: String})
+  const Parent = ds.createModel('parent', {name: String})
+  const Critic = ds.createModel('critic', {name: String})
+  const Appointment = ds.createModel('appointment', {name: String})
+  const Physician = ds.createModel('physician', {name: String})
+  const Patient = ds.createModel('patient', {name: String})
+  const House = ds.createModel('house', {name: String})
+  const Door = ds.createModel('door', {name: String})
+  const Window = ds.createModel('window', {name: String})
+  const Tile = ds.createModel('tile', {name: String})
+  const Floor = ds.createModel('floor', {name: String})
+
+  app.model(Post)
+  app.model(Author)
+  app.model(Comment)
+  app.model(Parent)
+  app.model(Critic)
+  app.model(Appointment)
+  app.model(Physician)
+  app.model(Patient)
+  app.model(House)
+  app.model(Door)
+  app.model(Window)
+  app.model(Tile)
+  app.model(Floor)
+
+  Comment.belongsTo(Post)
+  Post.hasMany(Comment)
+  Post.belongsTo(Author)
+  Parent.hasMany(Post, {polymorphic: {discriminator: 'parentType', foreignKey: 'parentId'}})
+  Post.belongsTo('parent', {polymorphic: true})
+  Post.hasAndBelongsToMany(Critic)
+  Author.hasMany(Post)
+  Author.hasMany(Comment, {through: Post})
+  House.embedsOne(Door)
+  House.embedsMany(Window)
+  House.referencesMany(Tile)
+  House.hasOne(Floor)
+  Appointment.belongsTo(Patient)
+  Appointment.belongsTo(Physician)
+  Physician.hasMany(Patient, {through: Appointment})
+  Patient.hasMany(Physician, {through: Appointment})
+
+  app.use(loopback.rest())
+})
+
+test.beforeEach(async t => {
+  const { Post, Author, Comment, Parent, Critic } = t.context.app.models
+
+  await Post.create({id: 1, authorId: 1, title: 'my post', content: 'post 1', parentType: 'parent', parentId: 1})
+  await Comment.create({id: 1, postId: 1, title: 'comment 1', comment: 'my comment 1'})
+  await Comment.create({id: 2, postId: 2, title: 'comment 2', comment: 'my comment 2'})
+  await Author.create({id: 1, name: 'Joe', email: 'joe@email.com'})
+  await Parent.create({id: 1, name: 'father'})
+  await Critic.create({id: 1, name: 'Sam'})
+})
+
+test('pluralForModel', t => {
+  t.plan(2)
+  const { Post, Comment } = t.context.app.models
+
+  const postPlural = serializer().pluralForModel(Post)
+  const commentPlural = serializer().pluralForModel(Comment)
+
+  t.is(postPlural, 'posts', 'post plural should be posts')
+  t.is(commentPlural, 'comments', 'comment plural should be comments')
+})
+
+test('primaryKeyForModel', t => {
+  t.plan(2)
+  const { Post, Comment } = t.context.app.models
+
+  const postPrimaryKey = serializer().primaryKeyForModel(Post)
+  const commentPrimaryKey = serializer().primaryKeyForModel(Comment)
+
+  t.is(postPrimaryKey, 'id', 'post primary key should be id')
+  t.is(commentPrimaryKey, 'id', 'comment primary key should be id')
+})
+
+test('attributesFromData', t => {
+  t.plan(1)
+  const data = {id: 1, title: 'my title', other: 'other stuff'}
+  const attributeNames = ['id', 'title']
+
+  const attributes = serializer().attributesFromData(data, attributeNames)
+
+  t.deepEqual(attributes, {id: 1, title: 'my title'}, `should match ${JSON.stringify({id: 1, title: 'my title'})}`)
+})
+
+test('attributesForModel', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+
+  const attributes = serializer().attributesForModel(Post)
+
+  const expected = ['title', 'content', 'id', 'authorId', 'parentType', 'parentId']
+  t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('attributesForModel option: primaryKey: false', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+
+  const attributes = serializer().attributesForModel(Post, {primaryKey: false})
+
+  const expected = ['title', 'content', 'authorId', 'parentType', 'parentId']
+  t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('attributesForModel option: foreignKeys: false', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+
+  const attributes = serializer().attributesForModel(Post, {foreignKeys: false})
+
+  t.deepEqual(attributes, ['title', 'content', 'id'],
+    `attributes should match ${JSON.stringify(['id', 'title', 'content'])}`)
+})
+
+test('foreignKeysForModel', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+
+  const foreignkeys = serializer().foreignKeysForModel(Post)
+
+  const expected = ['authorId', 'parentId', 'parentType']
+  t.deepEqual(foreignkeys, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('formatJsonapi basic', t => {
+  t.plan(1)
+  const id = 1
+  const type = 'posts'
+
+  const serialized = serializer().formatJsonapi(id, type)
+
+  t.deepEqual(serialized, {id, type}, `should match ${JSON.stringify({id, type})}`)
+})
+
+test('formatJsonapi attributes', t => {
+  t.plan(1)
+  const id = 1
+  const type = 'posts'
+  const attributes = {title: 'my title', content: 'my content'}
+
+  const serialized = serializer().formatJsonapi(id, type, attributes)
+
+  const expected = {id: 1, type: 'posts', attributes: {title: 'my title', content: 'my content'}}
+  t.deepEqual(serialized, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('formatJsonapi with relationships', t => {
+  t.plan(1)
+  const id = 1
+  const type = 'posts'
+  const attributes = {title: 'my title', content: 'my content'}
+  const relationships = {comments: {data: []}}
+
+  const serialized = serializer().formatJsonapi(id, type, attributes, relationships)
+
+  const expected = {id, type, attributes, relationships}
+  t.deepEqual(serialized, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('formatJsonapi with links', t => {
+  t.plan(1)
+  const id = 1
+  const type = 'posts'
+  const attributes = {title: 'my title', content: 'my content'}
+  const links = {self: 'http://mysite.com/posts/1'}
+
+  const serialized = serializer().formatJsonapi(id, type, attributes, null, links)
+
+  const expected = {id, type, attributes, links}
+  t.deepEqual(serialized, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('formatJsonapi with meta', t => {
+  t.plan(1)
+  const id = 1
+  const type = 'posts'
+  const attributes = {title: 'my title', content: 'my content'}
+  const meta = {custom: 'my custom'}
+
+  const serialized = serializer().formatJsonapi(id, type, attributes, null, null, meta)
+
+  const expected = {id, type, attributes, meta}
+  t.deepEqual(serialized, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('buildAttributes', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+  const data = {id: 1, authorId: 1, title: 'my title', content: 'my content', other: 'custom', parentId: 1, parentType: 'parent'}
+
+  const attributes = serializer().buildAttributes(data, Post)
+
+  const expected = {id: 1, authorId: 1, title: data.title, content: data.content, parentId: 1, parentType: 'parent'}
+  t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('buildAttributes options: primaryKey: false', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+  const data = {id: 1, authorId: 1, title: 'my title', content: 'my content', other: 'custom', parentId: 1, parentType: 'parent'}
+
+  const attributes = serializer().buildAttributes(data, Post, {primaryKey: false})
+
+  const expected = {authorId: 1, title: data.title, content: data.content, parentId: 1, parentType: 'parent'}
+  t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('buildAttributes options: primaryKey: false, foreignKeys: false', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+  const data = {id: 1, authorId: 1, title: 'my title', content: 'my content', other: 'custom'}
+
+  const attributes = serializer().buildAttributes(data, Post, {primaryKey: false, foreignKeys: false})
+
+  const expected = {title: data.title, content: data.content}
+  t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('buildResourceLinks', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+  const data = {id: 1, authorId: 1, title: 'my title', content: 'my content', other: 'custom'}
+  const options = {baseUrl: 'http://posts.com/'}
+
+  const links = serializer(options).buildResourceLinks(data, Post)
+
+  const expected = {self: 'http://posts.com/posts/1'}
+  t.deepEqual(links, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('relationshipLinksFromData', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+  const data = {id: 1}
+
+  const links = serializer().relationshipLinksFromData(data, Post)
+
+  const expected = {
+    comments: {
+      links: {
+        related: '/posts/1/comments'
+      }
+    },
+    author: {
+      links: {
+        related: '/posts/1/author'
+      }
+    },
+    parent: {
+      links: {
+        related: '/posts/1/parent'
+      }
+    },
+    critics: {
+      links: {
+        related: '/posts/1/critics'
+      }
+    }
+  }
+  t.deepEqual(links, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('relationshipDataFromData', t => {
+  t.plan(1)
+  const { Author } = t.context.app.models
+  const data = {id: 1, posts: [
+    {id: 1, name: 'my name 1'},
+    {id: 2, name: 'my name 2'},
+    {id: 3, name: 'my name 3'}
+  ]}
+
+  const links = serializer().relationshipDataFromData(data, Author)
+
+  const expected = {
+    posts: {
+      data: [
+        {id: 1, type: 'posts'},
+        {id: 2, type: 'posts'},
+        {id: 3, type: 'posts'}
+      ]
+    }
+  }
+  t.deepEqual(links, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('relationshipDataFromData no included data', t => {
+  t.plan(1)
+  const { Author } = t.context.app.models
+  const data = {id: 1}
+
+  const links = serializer().relationshipDataFromData(data, Author)
+
+  const expected = {}
+  t.deepEqual(links, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('relationshipDataFromData singular relation', t => {
+  t.plan(1)
+  const { Appointment } = t.context.app.models
+  const data = {id: 1, patient: {id: 1, name: 'my name 1'}}
+
+  const links = serializer().relationshipDataFromData(data, Appointment)
+
+  const expected = {patient: {data: {id: 1, type: 'patients'}}}
+  t.deepEqual(links, expected, `should match ${JSON.stringify(expected)}`)
+})
+
+test('relatedModelFromRelation post.comments', t => {
+  const { Post } = t.context.app.models
+  const relation = Post.relations.comments
+  const lib = serializer()
+
+  const model = lib.relatedModelFromRelation(relation)
+
+  t.is(lib.pluralForModel(model), 'comments', `should equal 'comments'`)
+})
+
+test('relatedModelFromRelation post.author', t => {
+  const { Post } = t.context.app.models
+  const relation = Post.relations.author
+  const lib = serializer()
+
+  const model = lib.relatedModelFromRelation(relation)
+
+  t.is(lib.pluralForModel(model), 'authors', `should equal 'authors'`)
+})
+
+test.skip('relatedModelFromRelation Post polymorphic parent', t => {
+  const { Post } = t.context.app.models
+  const relation = Post.relations.parent
+  const lib = serializer()
+
+  const model = lib.relatedModelFromRelation(relation)
+
+  t.is(lib.pluralForModel(model), 'parent', `should equal 'parent'`)
+})
+
+test('relatedModelFromRelation post.critics', t => {
+  const { Post } = t.context.app.models
+  const relation = Post.relations.critics
+  const lib = serializer()
+
+  const model = lib.relatedModelFromRelation(relation)
+
+  t.is(lib.pluralForModel(model), 'critics', `should equal 'critics'`)
+})
+
+test('relatedModelFromRelation House embedsOne Door', t => {
+  const { House } = t.context.app.models
+  const relation = House.relations.doorItem
+  const lib = serializer()
+
+  const model = lib.relatedModelFromRelation(relation)
+
+  t.is(lib.pluralForModel(model), 'doors', `should equal 'doors'`)
+})
+
+test('relatedModelFromRelation House embedsMany Window', t => {
+  const { House } = t.context.app.models
+  const relation = House.relations.windowList
+  const lib = serializer()
+
+  const model = lib.relatedModelFromRelation(relation)
+
+  t.is(lib.pluralForModel(model), 'windows', `should equal 'windows'`)
+})
+
+test('relatedModelFromRelation House referencesMany Tile', t => {
+  const { House } = t.context.app.models
+  const relation = House.relations.tiles
+  const lib = serializer()
+
+  const model = lib.relatedModelFromRelation(relation)
+
+  t.is(lib.pluralForModel(model), 'tiles', `should equal 'tiles'`)
+})
+
+test('relatedModelFromRelation House hasOne Floor', t => {
+  const { House } = t.context.app.models
+  const relation = House.relations.floor
+  const lib = serializer()
+
+  const model = lib.relatedModelFromRelation(relation)
+
+  t.is(lib.pluralForModel(model), 'floors', `should equal 'floors'`)
+})
+
+test('relatedModelFromRelation Physician hasMany Patient through Appointment', t => {
+  const { Physician } = t.context.app.models
+  const relation = Physician.relations.patients
+  const lib = serializer()
+
+  const model = lib.relatedModelFromRelation(relation)
+
+  t.is(lib.pluralForModel(model), 'patients', `should equal 'patients'`)
+})
+
