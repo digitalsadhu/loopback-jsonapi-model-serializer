@@ -56,17 +56,6 @@ test.beforeEach(t => {
   app.use(loopback.rest())
 })
 
-test.beforeEach(async t => {
-  const { Post, Author, Comment, Parent, Critic } = t.context.app.models
-
-  await Post.create({id: 1, authorId: 1, title: 'my post', content: 'post 1', parentType: 'parent', parentId: 1})
-  await Comment.create({id: 1, postId: 1, title: 'comment 1', comment: 'my comment 1'})
-  await Comment.create({id: 2, postId: 2, title: 'comment 2', comment: 'my comment 2'})
-  await Author.create({id: 1, name: 'Joe', email: 'joe@email.com'})
-  await Parent.create({id: 1, name: 'father'})
-  await Critic.create({id: 1, name: 'Sam'})
-})
-
 test('pluralForModel', t => {
   t.plan(2)
   const { Post, Comment } = t.context.app.models
@@ -329,7 +318,7 @@ test('relatedModelFromRelation post.comments', t => {
 
   const model = lib.relatedModelFromRelation(relation)
 
-  t.is(lib.pluralForModel(model), 'comments', `should equal 'comments'`)
+  t.is(lib.pluralForModel(model), 'comments', 'should equal `comment`')
 })
 
 test('relatedModelFromRelation post.author', t => {
@@ -339,7 +328,7 @@ test('relatedModelFromRelation post.author', t => {
 
   const model = lib.relatedModelFromRelation(relation)
 
-  t.is(lib.pluralForModel(model), 'authors', `should equal 'authors'`)
+  t.is(lib.pluralForModel(model), 'authors', 'should equal `authors`')
 })
 
 test.skip('relatedModelFromRelation Post polymorphic parent', t => {
@@ -349,7 +338,7 @@ test.skip('relatedModelFromRelation Post polymorphic parent', t => {
 
   const model = lib.relatedModelFromRelation(relation)
 
-  t.is(lib.pluralForModel(model), 'parent', `should equal 'parent'`)
+  t.is(lib.pluralForModel(model), 'parent', 'should equal `parent`')
 })
 
 test('relatedModelFromRelation post.critics', t => {
@@ -359,7 +348,7 @@ test('relatedModelFromRelation post.critics', t => {
 
   const model = lib.relatedModelFromRelation(relation)
 
-  t.is(lib.pluralForModel(model), 'critics', `should equal 'critics'`)
+  t.is(lib.pluralForModel(model), 'critics', 'should equal `critics`')
 })
 
 test('relatedModelFromRelation House embedsOne Door', t => {
@@ -369,7 +358,7 @@ test('relatedModelFromRelation House embedsOne Door', t => {
 
   const model = lib.relatedModelFromRelation(relation)
 
-  t.is(lib.pluralForModel(model), 'doors', `should equal 'doors'`)
+  t.is(lib.pluralForModel(model), 'doors', 'should equal `doors`')
 })
 
 test('relatedModelFromRelation House embedsMany Window', t => {
@@ -379,7 +368,7 @@ test('relatedModelFromRelation House embedsMany Window', t => {
 
   const model = lib.relatedModelFromRelation(relation)
 
-  t.is(lib.pluralForModel(model), 'windows', `should equal 'windows'`)
+  t.is(lib.pluralForModel(model), 'windows', 'should equal `windows`')
 })
 
 test('relatedModelFromRelation House referencesMany Tile', t => {
@@ -389,7 +378,7 @@ test('relatedModelFromRelation House referencesMany Tile', t => {
 
   const model = lib.relatedModelFromRelation(relation)
 
-  t.is(lib.pluralForModel(model), 'tiles', `should equal 'tiles'`)
+  t.is(lib.pluralForModel(model), 'tiles', 'should equal `tiles`')
 })
 
 test('relatedModelFromRelation House hasOne Floor', t => {
@@ -399,7 +388,7 @@ test('relatedModelFromRelation House hasOne Floor', t => {
 
   const model = lib.relatedModelFromRelation(relation)
 
-  t.is(lib.pluralForModel(model), 'floors', `should equal 'floors'`)
+  t.is(lib.pluralForModel(model), 'floors', 'should equal `floors`')
 })
 
 test('relatedModelFromRelation Physician hasMany Patient through Appointment', t => {
@@ -409,7 +398,7 @@ test('relatedModelFromRelation Physician hasMany Patient through Appointment', t
 
   const model = lib.relatedModelFromRelation(relation)
 
-  t.is(lib.pluralForModel(model), 'patients', `should equal 'patients'`)
+  t.is(lib.pluralForModel(model), 'patients', 'should equal `patients`')
 })
 
 test('buildRelations', t => {

@@ -33,17 +33,6 @@ test.beforeEach(t => {
   app.use(loopback.rest())
 })
 
-test.beforeEach(async t => {
-  const { Post, Author, Comment, Parent, Critic } = t.context.app.models
-
-  await Post.create({id: 1, authorId: 1, title: 'my post', content: 'post 1', parentType: 'parent', parentId: 1})
-  await Comment.create({id: 1, postId: 1, title: 'comment 1', comment: 'my comment 1'})
-  await Comment.create({id: 2, postId: 2, title: 'comment 2', comment: 'my comment 2'})
-  await Author.create({id: 1, name: 'Joe', email: 'joe@email.com'})
-  await Parent.create({id: 1, name: 'father'})
-  await Critic.create({id: 1, name: 'Sam'})
-})
-
 test('id', t => {
   t.plan(1)
   const { Post } = t.context.app.models
@@ -148,4 +137,65 @@ test('resource with attributes', t => {
     }
   }
   t.deepEqual(resource, expected, `serialized should match ${JSON.stringify(expected)}`)
+})
+
+test('included', t => {
+  t.plan(1)
+  const { Post } = t.context.app.models
+  const data = {id: 1, title: 'my title', comments: [
+    {id: 1, comment: 'my comment'}
+  ]}
+
+  const included = serializer().included(data, Post)
+
+  const expected = [{
+    id: 1,
+    type: 'comments',
+    links: {self: '/comments/1'},
+    attributes: {comment: 'my comment', title: undefined},
+    relationships: {
+      post: {links: {related: '/comments/1/post'}}
+    }
+  }]
+  t.deepEqual(included, expected, `serialized should match ${JSON.stringify(expected)}`)
+})
+
+test('included comments length 2', t => {
+  t.plan(2)
+  const { Post } = t.context.app.models
+  const data = {id: 1, title: 'my title', comments: [
+    {id: 1, comment: 'my comment 1'},
+    {id: 2, comment: 'my comment 2'}
+  ]}
+
+  const included = serializer().included(data, Post)
+
+  t.truthy(included, 'included should be truthy')
+  t.is(included.length, 2, 'included length should be 2')
+})
+
+test.skip('included comments and author', t => {})
+
+test.skip('included comments with post with critic', t => {
+  t.plan(2)
+  const { Post } = t.context.app.models
+  const data = {id: 1, title: 'my title', comments: [
+    {
+      id: 1,
+      comment: 'my comment 1',
+      post: {
+        id: 2,
+        title: 'my post 2',
+        critics: [
+          {id: 1, name: 'critic'},
+          {id: 1, name: 'critic'}
+        ]
+      }
+    }
+  ]}
+
+  const included = serializer().included(data, Post)
+
+  t.truthy(included, 'included should be truthy')
+  t.is(included.length, 4, 'included length should be 4')
 })

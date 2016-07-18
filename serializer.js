@@ -14,7 +14,6 @@ module.exports = (options = {baseUrl: '/'}) => {
       type: type(data, model),
       links: links(data, model)
     }
-
     const attrs = attributes(data, model)
     if (!_.isEmpty(attrs)) resource['attributes'] = attrs
 
@@ -46,7 +45,20 @@ module.exports = (options = {baseUrl: '/'}) => {
   }
 
   function included (data, model) {
-
+    let incl = []
+    const relations = model.relations
+    for (let name of Object.keys(relations)) {
+      const relation = relations[name]
+      const model = lib().relatedModelFromRelation(relation)
+      let relatedData = data[name] || []
+      if (!model) return incl
+      if (!Array.isArray(relatedData)) relatedData = [relatedData]
+      for (let relatedDataPoint of relatedData) {
+        incl.push(resource(relatedDataPoint, model))
+        incl = incl.concat(included(relatedDataPoint, model))
+      }
+    }
+    return incl
   }
 
   return {
