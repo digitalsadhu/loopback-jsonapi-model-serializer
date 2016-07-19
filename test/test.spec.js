@@ -128,67 +128,6 @@ test('foreignKeysForModel', t => {
   t.deepEqual(foreignkeys, expected, `should match ${JSON.stringify(expected)}`)
 })
 
-test('formatJsonapi basic', t => {
-  t.plan(1)
-  const id = 1
-  const type = 'posts'
-
-  const serialized = serializer().formatJsonapi(id, type)
-
-  t.deepEqual(serialized, {id, type}, `should match ${JSON.stringify({id, type})}`)
-})
-
-test('formatJsonapi attributes', t => {
-  t.plan(1)
-  const id = 1
-  const type = 'posts'
-  const attributes = {title: 'my title', content: 'my content'}
-
-  const serialized = serializer().formatJsonapi(id, type, attributes)
-
-  const expected = {id: 1, type: 'posts', attributes: {title: 'my title', content: 'my content'}}
-  t.deepEqual(serialized, expected, `should match ${JSON.stringify(expected)}`)
-})
-
-test('formatJsonapi with relationships', t => {
-  t.plan(1)
-  const id = 1
-  const type = 'posts'
-  const attributes = {title: 'my title', content: 'my content'}
-  const relationships = {comments: {data: []}}
-
-  const serialized = serializer().formatJsonapi(id, type, attributes, relationships)
-
-  const expected = {id, type, attributes, relationships}
-  t.deepEqual(serialized, expected, `should match ${JSON.stringify(expected)}`)
-})
-
-test('formatJsonapi with links', t => {
-  t.plan(1)
-  const id = 1
-  const type = 'posts'
-  const attributes = {title: 'my title', content: 'my content'}
-  const links = {self: 'http://mysite.com/posts/1'}
-
-  const serialized = serializer().formatJsonapi(id, type, attributes, null, links)
-
-  const expected = {id, type, attributes, links}
-  t.deepEqual(serialized, expected, `should match ${JSON.stringify(expected)}`)
-})
-
-test('formatJsonapi with meta', t => {
-  t.plan(1)
-  const id = 1
-  const type = 'posts'
-  const attributes = {title: 'my title', content: 'my content'}
-  const meta = {custom: 'my custom'}
-
-  const serialized = serializer().formatJsonapi(id, type, attributes, null, null, meta)
-
-  const expected = {id, type, attributes, meta}
-  t.deepEqual(serialized, expected, `should match ${JSON.stringify(expected)}`)
-})
-
 test('buildAttributes', t => {
   t.plan(1)
   const { Post } = t.context.app.models

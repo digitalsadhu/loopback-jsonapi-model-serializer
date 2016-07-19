@@ -4,22 +4,6 @@ const _ = require('lodash')
 const url = require('url')
 
 module.exports = (options = {baseUrl: '/'}) => {
-  function generateIncluded (included = [], data, model) {
-    // const relations = model.relations
-
-    // _.forOwn(relations, (relationDefn, relationName) => {
-      // const relationModel = relatedModelFromRelation(relationDefn)
-      // const relationData = nestedRelationData(relationName, data)
-      // const jsonapi = buildJsonapi(relationModel, relationData)
-      // included.push(jsonapi)
-      // generateIncluded(included, relationData, relationModel)
-    // })
-  }
-
-  function nestedRelationData (relationName, data) {
-
-  }
-
   function primaryKeyForModel (model) {
     return model.getIdName()
   }
@@ -97,15 +81,6 @@ module.exports = (options = {baseUrl: '/'}) => {
     return relationships
   }
 
-  function formatJsonapi (id, type, attributes, relationships, links, meta) {
-    let data = {id, type}
-    if (attributes) data = Object.assign(data, {attributes})
-    if (relationships) data = Object.assign(data, {relationships})
-    if (links) data = Object.assign(data, {links})
-    if (meta) data = Object.assign(data, {meta})
-    return data
-  }
-
   function attributesForModel (model, opts = {}) {
     const attributes = _.clone(model.definition.properties)
     if (opts.primaryKey === false) delete attributes[primaryKeyForModel(model)]
@@ -138,21 +113,17 @@ module.exports = (options = {baseUrl: '/'}) => {
   }
 
   return {
-    generateIncluded,
-    nestedRelationData,
-    primaryKeyForModel, // done
-    pluralForModel, // done
-    // buildJsonapi,
-    buildResourceLinks, // done
-    buildRelationships, // done
-    buildAttributes, // done
-    relationshipLinksFromData, // done
-    relationshipDataFromData, // done
-    formatJsonapi, // done
-    attributesForModel, // done
-    attributesFromData, // done
-    foreignKeysForModel, // done
-    relatedModelFromRelation // done
+    primaryKeyForModel,
+    pluralForModel,
+    buildResourceLinks,
+    buildRelationships,
+    buildAttributes,
+    relationshipLinksFromData,
+    relationshipDataFromData,
+    attributesForModel,
+    attributesFromData,
+    foreignKeysForModel,
+    relatedModelFromRelation
   }
 }
 
