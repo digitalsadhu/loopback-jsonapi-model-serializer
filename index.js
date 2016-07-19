@@ -82,6 +82,7 @@ module.exports = (options = {baseUrl: '/'}) => {
     for (let name of Object.keys(relations)) {
       const relation = relations[name]
       const relatedModel = relatedModelFromRelation(relation)
+      if (relation.polymorphic) continue
       const pk = primaryKeyForModel(relatedModel)
       const type = pluralForModel(relatedModel)
       if (Array.isArray(data[name])) {

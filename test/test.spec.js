@@ -331,16 +331,6 @@ test('relatedModelFromRelation post.author', t => {
   t.is(lib.pluralForModel(model), 'authors', 'should equal `authors`')
 })
 
-test.skip('relatedModelFromRelation Post polymorphic parent', t => {
-  const { Post } = t.context.app.models
-  const relation = Post.relations.parent
-  const lib = serializer()
-
-  const model = lib.relatedModelFromRelation(relation)
-
-  t.is(lib.pluralForModel(model), 'parent', 'should equal `parent`')
-})
-
 test('relatedModelFromRelation post.critics', t => {
   const { Post } = t.context.app.models
   const relation = Post.relations.critics

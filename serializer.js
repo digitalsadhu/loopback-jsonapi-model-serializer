@@ -49,6 +49,7 @@ module.exports = (options = {baseUrl: '/'}) => {
     const relations = model.relations
     for (let name of Object.keys(relations)) {
       const relation = relations[name]
+      if (relation.polymorphic) continue
       const model = lib().relatedModelFromRelation(relation)
       let relatedData = data[name] || []
       if (!model) return incl

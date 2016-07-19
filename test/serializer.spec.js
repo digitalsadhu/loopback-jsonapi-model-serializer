@@ -176,7 +176,7 @@ test('included comments length 2', t => {
 
 test.skip('included comments and author', t => {})
 
-test.skip('included comments with post with critic', t => {
+test('included comments with post with critic', t => {
   t.plan(2)
   const { Post } = t.context.app.models
   const data = {id: 1, title: 'my title', comments: [
@@ -187,15 +187,28 @@ test.skip('included comments with post with critic', t => {
         id: 2,
         title: 'my post 2',
         critics: [
-          {id: 1, name: 'critic'},
-          {id: 1, name: 'critic'}
+          {id: 1, name: 'critic 1'},
+          {id: 2, name: 'critic 2'}
         ]
       }
     }
   ]}
 
   const included = serializer().included(data, Post)
-
   t.truthy(included, 'included should be truthy')
   t.is(included.length, 4, 'included length should be 4')
+})
+
+test('included comments with post with critic', t => {
+  t.plan(2)
+  const { Post } = t.context.app.models
+  const data = {
+    id: 2,
+    title: 'my post 2',
+    critics: [ { id: 1, name: 'critic 1' }, { id: 2, name: 'critic 2' } ]
+  }
+
+  const included = serializer().included(data, Post)
+  t.truthy(included, 'included should be truthy')
+  t.is(included.length, 2, 'included length should be 4')
 })
