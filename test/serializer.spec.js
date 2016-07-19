@@ -269,3 +269,6 @@ test('serialize collection', t => {
   t.is(resource.included[0].id, 1)
   t.is(resource.included[0].type, 'critics')
 })
+
+test('included ensures uniqueness', t => {})
+test('large payload', t => {})
