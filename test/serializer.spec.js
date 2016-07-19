@@ -1,6 +1,6 @@
 import test from 'ava'
 import loopback from 'loopback'
-import serializer from '../serializer'
+import serializer from '../src/serializer'
 
 test.beforeEach(t => {
   const app = t.context.app = loopback()

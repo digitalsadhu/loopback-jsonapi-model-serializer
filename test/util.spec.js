@@ -1,6 +1,6 @@
 import test from 'ava'
 import loopback from 'loopback'
-import serializer from '../'
+import util from '../src/util'
 
 test.beforeEach(t => {
   const app = t.context.app = loopback()
@@ -60,8 +60,8 @@ test('pluralForModel', t => {
   t.plan(2)
   const { Post, Comment } = t.context.app.models
 
-  const postPlural = serializer().pluralForModel(Post)
-  const commentPlural = serializer().pluralForModel(Comment)
+  const postPlural = util().pluralForModel(Post)
+  const commentPlural = util().pluralForModel(Comment)
 
   t.is(postPlural, 'posts', 'post plural should be posts')
   t.is(commentPlural, 'comments', 'comment plural should be comments')
@@ -71,8 +71,8 @@ test('primaryKeyForModel', t => {
   t.plan(2)
   const { Post, Comment } = t.context.app.models
 
-  const postPrimaryKey = serializer().primaryKeyForModel(Post)
-  const commentPrimaryKey = serializer().primaryKeyForModel(Comment)
+  const postPrimaryKey = util().primaryKeyForModel(Post)
+  const commentPrimaryKey = util().primaryKeyForModel(Comment)
 
   t.is(postPrimaryKey, 'id', 'post primary key should be id')
   t.is(commentPrimaryKey, 'id', 'comment primary key should be id')
@@ -83,7 +83,7 @@ test('attributesFromData', t => {
   const data = {id: 1, title: 'my title', other: 'other stuff'}
   const attributeNames = ['id', 'title']
 
-  const attributes = serializer().attributesFromData(data, attributeNames)
+  const attributes = util().attributesFromData(data, attributeNames)
 
   t.deepEqual(attributes, {id: 1, title: 'my title'}, `should match ${JSON.stringify({id: 1, title: 'my title'})}`)
 })
@@ -92,7 +92,7 @@ test('attributesForModel', t => {
   t.plan(1)
   const { Post } = t.context.app.models
 
-  const attributes = serializer().attributesForModel(Post)
+  const attributes = util().attributesForModel(Post)
 
   const expected = ['title', 'content', 'id', 'authorId', 'parentType', 'parentId']
   t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
@@ -102,7 +102,7 @@ test('attributesForModel option: primaryKey: false', t => {
   t.plan(1)
   const { Post } = t.context.app.models
 
-  const attributes = serializer().attributesForModel(Post, {primaryKey: false})
+  const attributes = util().attributesForModel(Post, {primaryKey: false})
 
   const expected = ['title', 'content', 'authorId', 'parentType', 'parentId']
   t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
@@ -112,7 +112,7 @@ test('attributesForModel option: foreignKeys: false', t => {
   t.plan(1)
   const { Post } = t.context.app.models
 
-  const attributes = serializer().attributesForModel(Post, {foreignKeys: false})
+  const attributes = util().attributesForModel(Post, {foreignKeys: false})
 
   t.deepEqual(attributes, ['title', 'content', 'id'],
     `attributes should match ${JSON.stringify(['id', 'title', 'content'])}`)
@@ -122,7 +122,7 @@ test('foreignKeysForModel', t => {
   t.plan(1)
   const { Post } = t.context.app.models
 
-  const foreignkeys = serializer().foreignKeysForModel(Post)
+  const foreignkeys = util().foreignKeysForModel(Post)
 
   const expected = ['authorId', 'parentId', 'parentType']
   t.deepEqual(foreignkeys, expected, `should match ${JSON.stringify(expected)}`)
@@ -133,7 +133,7 @@ test('buildAttributes', t => {
   const { Post } = t.context.app.models
   const data = {id: 1, authorId: 1, title: 'my title', content: 'my content', other: 'custom', parentId: 1, parentType: 'parent'}
 
-  const attributes = serializer().buildAttributes(data, Post)
+  const attributes = util().buildAttributes(data, Post)
 
   const expected = {id: 1, authorId: 1, title: data.title, content: data.content, parentId: 1, parentType: 'parent'}
   t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
@@ -144,7 +144,7 @@ test('buildAttributes options: primaryKey: false', t => {
   const { Post } = t.context.app.models
   const data = {id: 1, authorId: 1, title: 'my title', content: 'my content', other: 'custom', parentId: 1, parentType: 'parent'}
 
-  const attributes = serializer().buildAttributes(data, Post, {primaryKey: false})
+  const attributes = util().buildAttributes(data, Post, {primaryKey: false})
 
   const expected = {authorId: 1, title: data.title, content: data.content, parentId: 1, parentType: 'parent'}
   t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
@@ -155,7 +155,7 @@ test('buildAttributes options: primaryKey: false, foreignKeys: false', t => {
   const { Post } = t.context.app.models
   const data = {id: 1, authorId: 1, title: 'my title', content: 'my content', other: 'custom'}
 
-  const attributes = serializer().buildAttributes(data, Post, {primaryKey: false, foreignKeys: false})
+  const attributes = util().buildAttributes(data, Post, {primaryKey: false, foreignKeys: false})
 
   const expected = {title: data.title, content: data.content}
   t.deepEqual(attributes, expected, `should match ${JSON.stringify(expected)}`)
@@ -167,7 +167,7 @@ test('buildResourceLinks', t => {
   const data = {id: 1, authorId: 1, title: 'my title', content: 'my content', other: 'custom'}
   const options = {baseUrl: 'http://posts.com/'}
 
-  const links = serializer(options).buildResourceLinks(data, Post)
+  const links = util(options).buildResourceLinks(data, Post)
 
   const expected = {self: 'http://posts.com/posts/1'}
   t.deepEqual(links, expected, `should match ${JSON.stringify(expected)}`)
@@ -178,7 +178,7 @@ test('relationshipLinksFromData', t => {
   const { Post } = t.context.app.models
   const data = {id: 1}
 
-  const links = serializer().relationshipLinksFromData(data, Post)
+  const links = util().relationshipLinksFromData(data, Post)
 
   const expected = {
     comments: {
@@ -214,7 +214,7 @@ test('relationshipDataFromData', t => {
     {id: 3, name: 'my name 3'}
   ]}
 
-  const links = serializer().relationshipDataFromData(data, Author)
+  const links = util().relationshipDataFromData(data, Author)
 
   const expected = {
     posts: {
@@ -233,7 +233,7 @@ test('relationshipDataFromData no included data', t => {
   const { Author } = t.context.app.models
   const data = {id: 1}
 
-  const links = serializer().relationshipDataFromData(data, Author)
+  const links = util().relationshipDataFromData(data, Author)
 
   const expected = {}
   t.deepEqual(links, expected, `should match ${JSON.stringify(expected)}`)
@@ -244,7 +244,7 @@ test('relationshipDataFromData singular relation', t => {
   const { Appointment } = t.context.app.models
   const data = {id: 1, patient: {id: 1, name: 'my name 1'}}
 
-  const links = serializer().relationshipDataFromData(data, Appointment)
+  const links = util().relationshipDataFromData(data, Appointment)
 
   const expected = {patient: {data: {id: 1, type: 'patients'}}}
   t.deepEqual(links, expected, `should match ${JSON.stringify(expected)}`)
@@ -253,7 +253,7 @@ test('relationshipDataFromData singular relation', t => {
 test('relatedModelFromRelation post.comments', t => {
   const { Post } = t.context.app.models
   const relation = Post.relations.comments
-  const lib = serializer()
+  const lib = util()
 
   const model = lib.relatedModelFromRelation(relation)
 
@@ -263,7 +263,7 @@ test('relatedModelFromRelation post.comments', t => {
 test('relatedModelFromRelation post.author', t => {
   const { Post } = t.context.app.models
   const relation = Post.relations.author
-  const lib = serializer()
+  const lib = util()
 
   const model = lib.relatedModelFromRelation(relation)
 
@@ -273,7 +273,7 @@ test('relatedModelFromRelation post.author', t => {
 test('relatedModelFromRelation post.critics', t => {
   const { Post } = t.context.app.models
   const relation = Post.relations.critics
-  const lib = serializer()
+  const lib = util()
 
   const model = lib.relatedModelFromRelation(relation)
 
@@ -283,7 +283,7 @@ test('relatedModelFromRelation post.critics', t => {
 test('relatedModelFromRelation House embedsOne Door', t => {
   const { House } = t.context.app.models
   const relation = House.relations.doorItem
-  const lib = serializer()
+  const lib = util()
 
   const model = lib.relatedModelFromRelation(relation)
 
@@ -293,7 +293,7 @@ test('relatedModelFromRelation House embedsOne Door', t => {
 test('relatedModelFromRelation House embedsMany Window', t => {
   const { House } = t.context.app.models
   const relation = House.relations.windowList
-  const lib = serializer()
+  const lib = util()
 
   const model = lib.relatedModelFromRelation(relation)
 
@@ -303,7 +303,7 @@ test('relatedModelFromRelation House embedsMany Window', t => {
 test('relatedModelFromRelation House referencesMany Tile', t => {
   const { House } = t.context.app.models
   const relation = House.relations.tiles
-  const lib = serializer()
+  const lib = util()
 
   const model = lib.relatedModelFromRelation(relation)
 
@@ -313,7 +313,7 @@ test('relatedModelFromRelation House referencesMany Tile', t => {
 test('relatedModelFromRelation House hasOne Floor', t => {
   const { House } = t.context.app.models
   const relation = House.relations.floor
-  const lib = serializer()
+  const lib = util()
 
   const model = lib.relatedModelFromRelation(relation)
 
@@ -323,7 +323,7 @@ test('relatedModelFromRelation House hasOne Floor', t => {
 test('relatedModelFromRelation Physician hasMany Patient through Appointment', t => {
   const { Physician } = t.context.app.models
   const relation = Physician.relations.patients
-  const lib = serializer()
+  const lib = util()
 
   const model = lib.relatedModelFromRelation(relation)
 
@@ -336,7 +336,7 @@ test('buildRelations', t => {
   const data = {id: 1, posts: [{id: 1}, {id: 2}, {id: 3}]}
   const opts = {baseUrl: 'http://locahost:3000'}
 
-  const rels = serializer(opts).buildRelationships(data, Author)
+  const rels = util(opts).buildRelationships(data, Author)
 
   const expected = {
     posts: {

@@ -1,6 +1,6 @@
 'use strict'
 
-const lib = require('./index.js')
+const lib = require('./util')
 const _ = require('lodash')
 
 module.exports = (options = {baseUrl: '/'}) => {
