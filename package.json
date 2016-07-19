@@ -23,9 +23,8 @@
   "scripts": {
     "lint": "standard --verbose | snazzy",
     "pretest": "npm run lint",
-    "test:ci": "mocha --ui mocha-given -R spec test",
-    "test:dev": "testem .",
-    "test": "ava",
+    "test:dev": "ava --watch",
+    "test": "ava --verbose",
     "prepublish": "npm test && npm prune",
     "preversion:patch": "npm run test",
     "version:patch": "xyz -i patch",
