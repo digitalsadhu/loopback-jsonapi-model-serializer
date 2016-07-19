@@ -14,4 +14,24 @@ JSONAPI Model serializer for loopback
 npm install loopback-jsonapi-model-serializer --save
 ```
 
-## Usage
+## Basic Usage
+
+Include the module as a dependency
+```js
+const serializer = require('loopback-jsonapi-model-serializer')
+```
+
+Use it to serialize a data payload
+```js
+const serializedData = serializer.serialize(data, model)
+```
+
+## API
+
+```js
+serialize(data, model, [options])
+```
+
+- `data` a payload of data from a loopback find, findOne, findById etc.
+- `model` a loopback model eg. app.models.User
+- `options` used to override baseUrl used in serialization process {baseUrl: 'http://localhost:3000/'}
