@@ -4,9 +4,9 @@ JSONAPI Model serializer for loopback
 
 [![NPM](https://nodei.co/npm/loopback-jsonapi-model-serializer.png?downloads=true&stars=true)](https://nodei.co/npm/loopback-jsonapi-model-serializer/)
 
-[![Media Suite](http://mediasuite.co.nz/ms-badge.png)](http://mediasuite.co.nz)
+[![Media Suite](https://mediasuite.co.nz/ms-badge.png)](https://mediasuite.co.nz)
 
-[![Build Status](https://travis-ci.org/mediasuitenz/loopback-jsonapi-model-serializer.svg)](https://travis-ci.org/digitalsadhu/loopback-jsonapi-model-serializer)
+[![Build Status](https://travis-ci.org/digitalsadhu/loopback-jsonapi-model-serializer.svg?branch=master)](https://travis-ci.org/digitalsadhu/loopback-jsonapi-model-serializer)
 
 ## Installation
 
