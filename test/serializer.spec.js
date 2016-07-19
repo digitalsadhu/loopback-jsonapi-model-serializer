@@ -174,8 +174,6 @@ test('included comments length 2', t => {
   t.is(included.length, 2, 'included length should be 2')
 })
 
-test.skip('included comments and author', t => {})
-
 test('included comments with post with critic', t => {
   t.plan(2)
   const { Post } = t.context.app.models
@@ -211,4 +209,63 @@ test('included comments with post with critic', t => {
   const included = serializer().included(data, Post)
   t.truthy(included, 'included should be truthy')
   t.is(included.length, 2, 'included length should be 4')
+})
+
+test('serialize single resource', t => {
+  t.plan(4)
+  const { Post } = t.context.app.models
+  const data = {
+    id: 2,
+    title: 'my post 2'
+  }
+
+  const resource = serializer().serialize(data, Post)
+
+  t.truthy(resource)
+  t.truthy(resource.data)
+  t.is(resource.data.id, 2)
+  t.is(resource.data.type, 'posts')
+})
+
+test('serialize collection', t => {
+  t.plan(6)
+  const { Post } = t.context.app.models
+  const data = [
+    {id: 1, title: 'my post 1'},
+    {id: 2, title: 'my post 2'},
+    {id: 3, title: 'my post 3'}
+  ]
+
+  const resource = serializer().serialize(data, Post)
+
+  t.truthy(resource)
+  t.truthy(Array.isArray(resource.data))
+  t.is(resource.data[0].id, 1)
+  t.is(resource.data[1].id, 2)
+  t.is(resource.data[2].id, 3)
+  t.is(resource.data[0].type, 'posts')
+})
+
+test('serialize collection', t => {
+  t.plan(8)
+  const { Post } = t.context.app.models
+  const data = {
+    id: 2,
+    title: 'my post 2',
+    critics: [
+      {id: 1, name: 'critic 1'},
+      {id: 2, name: 'critic 2'}
+    ]
+  }
+
+  const resource = serializer().serialize(data, Post)
+
+  t.truthy(resource.included)
+  t.truthy(resource.data)
+  t.is(resource.data.id, 2)
+  t.is(resource.data.type, 'posts')
+  t.true(Array.isArray(resource.included))
+  t.is(resource.included.length, 2)
+  t.is(resource.included[0].id, 1)
+  t.is(resource.included[0].type, 'critics')
 })

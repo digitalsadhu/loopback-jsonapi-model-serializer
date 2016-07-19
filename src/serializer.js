@@ -5,7 +5,21 @@ const _ = require('lodash')
 
 module.exports = (options = {baseUrl: '/'}) => {
   function serialize (data, model) {
+    let serializedData = []
+    let serializedIncluded = []
+    if (Array.isArray(data)) {
+      for (let dataPoint of data) {
+        serializedData.push(resource(dataPoint, model))
+        serializedIncluded.push(included(dataPoint, model))
+      }
+    } else {
+      serializedData = resource(data, model)
+      serializedIncluded = included(data, model)
+    }
+    const serialized = {data: serializedData}
+    if (!_.isEmpty(serializedIncluded)) serialized.included = serializedIncluded
 
+    return serialized
   }
 
   function resource (data, model) {
