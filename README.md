@@ -18,12 +18,12 @@ npm install loopback-jsonapi-model-serializer --save
 
 Include the module as a dependency
 ```js
-const serializer = require('loopback-jsonapi-model-serializer')
+const serialize = require('loopback-jsonapi-model-serializer')
 ```
 
 Use it to serialize a data payload
 ```js
-const serializedData = serializer.serialize(data, model)
+const serializedData = serialize(data, model)
 ```
 
 ## API
