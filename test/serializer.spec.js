@@ -157,7 +157,7 @@ test('included', t => {
       post: {links: {related: '/comments/1/post'}}
     }
   }]
-  t.deepEqual(included, expected, `serialized should match ${JSON.stringify(expected)}`)
+  t.deepEqual([...included.values()], expected, `serialized should match ${JSON.stringify(expected)}`)
 })
 
 test('included comments length 2', t => {
@@ -171,7 +171,7 @@ test('included comments length 2', t => {
   const included = serializer().included(data, Post)
 
   t.truthy(included, 'included should be truthy')
-  t.is(included.length, 2, 'included length should be 2')
+  t.is(included.size, 2, 'included length should be 2')
 })
 
 test('included comments with post with critic', t => {
@@ -194,7 +194,7 @@ test('included comments with post with critic', t => {
 
   const included = serializer().included(data, Post)
   t.truthy(included, 'included should be truthy')
-  t.is(included.length, 4, 'included length should be 4')
+  t.is(included.size, 4, 'included length should be 4')
 })
 
 test('included comments with post with critic', t => {
@@ -208,7 +208,7 @@ test('included comments with post with critic', t => {
 
   const included = serializer().included(data, Post)
   t.truthy(included, 'included should be truthy')
-  t.is(included.length, 2, 'included length should be 4')
+  t.is(included.size, 2, 'included length should be 4')
 })
 
 test('serialize single resource', t => {
@@ -270,8 +270,8 @@ test('serialize collection', t => {
   t.is(resource.included[0].type, 'critics')
 })
 
-test.only('included ensures uniqueness', t => {
-  t.plan(6)
+test('included ensures uniqueness', t => {
+  t.plan(5)
   const { Post } = t.context.app.models
   const data = [
     {id: 1, title: 'my post 2', critics: [{id: 1, name: 'critic 1'}, {id: 2, name: 'critic 2'}]},
@@ -281,10 +281,9 @@ test.only('included ensures uniqueness', t => {
 
   const collection = serializer().serialize(data, Post)
 
-  t.true(Array.isArray(collection.included))
-  t.is(collection.included.length, 5)
-  t.truthy(collection.included[0].id)
-  t.is(collection.included[2].id, 1)
-  t.is(collection.included[2].type, 'authors')
-  t.truthy(collection.included[2].relationships.comments.data)
+  t.true(Array.isArray(collection.included), 'included property should be an array')
+  t.is(collection.included.length, 5, 'included array should contain 5 items')
+  t.is(collection.included[2].id, 1, 'Third item should have id 1')
+  t.is(collection.included[2].type, 'authors', 'third item should be an author')
+  t.truthy(collection.included[2].relationships.comments.data, 'author should have relationship data')
 })
