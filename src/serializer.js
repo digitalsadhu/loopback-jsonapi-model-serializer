@@ -6,18 +6,20 @@ const _ = require('lodash')
 module.exports = (options = {baseUrl: '/'}) => {
   function serialize (data, model) {
     let serializedData = []
-    let serializedIncluded = []
+    let serializedIncluded = new Map()
     if (Array.isArray(data)) {
       for (let dataPoint of data) {
         serializedData.push(resource(dataPoint, model))
-        serializedIncluded.push(included(dataPoint, model))
+        included(dataPoint, model).forEach(item => {
+          serializedIncluded.set(`${item.type}-${item.id}`, item)
+        })
       }
     } else {
       serializedData = resource(data, model)
       serializedIncluded = included(data, model)
     }
     const serialized = {data: serializedData}
-    if (!_.isEmpty(serializedIncluded)) serialized.included = serializedIncluded
+    if (serializedIncluded.size > 0) serialized.included = [...serializedIncluded.values()]
 
     return serialized
   }
@@ -59,7 +61,7 @@ module.exports = (options = {baseUrl: '/'}) => {
   }
 
   function included (data, model) {
-    let incl = []
+    let incl = new Map()
     const relations = model.relations
     for (let name of Object.keys(relations)) {
       const relation = relations[name]
@@ -69,8 +71,11 @@ module.exports = (options = {baseUrl: '/'}) => {
       if (!model) return incl
       if (!Array.isArray(relatedData)) relatedData = [relatedData]
       for (let relatedDataPoint of relatedData) {
-        incl.push(resource(relatedDataPoint, model))
-        incl = incl.concat(included(relatedDataPoint, model))
+        const item = resource(relatedDataPoint, model)
+        incl.set(`${item.type}-${item.id}`, item)
+        included(relatedDataPoint, model).forEach(item => {
+          incl.set(`${item.type}-${item.id}`, item)
+        })
       }
     }
     return incl

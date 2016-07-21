@@ -270,5 +270,21 @@ test('serialize collection', t => {
   t.is(resource.included[0].type, 'critics')
 })
 
-test('included ensures uniqueness', t => {})
-test('large payload', t => {})
+test.only('included ensures uniqueness', t => {
+  t.plan(6)
+  const { Post } = t.context.app.models
+  const data = [
+    {id: 1, title: 'my post 2', critics: [{id: 1, name: 'critic 1'}, {id: 2, name: 'critic 2'}]},
+    {id: 2, title: 'my post 2', author: {id: 1, name: 'critic 1', comments: [{id: 1, comment: 'hi'}, {id: 2}]}},
+    {id: 3, title: 'my post 2', author: {id: 1, name: 'critic 1', comments: [{id: 1, comment: 'hi'}, {id: 2}]}}
+  ]
+
+  const collection = serializer().serialize(data, Post)
+
+  t.true(Array.isArray(collection.included))
+  t.is(collection.included.length, 5)
+  t.truthy(collection.included[0].id)
+  t.is(collection.included[2].id, 1)
+  t.is(collection.included[2].type, 'authors')
+  t.truthy(collection.included[2].relationships.comments.data)
+})

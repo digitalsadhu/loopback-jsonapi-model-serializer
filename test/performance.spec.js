@@ -40,7 +40,7 @@ test.beforeEach(async t => {
   t.context.posts = posts
 })
 
-test('id', t => {
+test('performance test serializing 1000 posts with nested relations', t => {
   t.plan(4)
   const { Post } = t.context.app.models
   const data = t.context.posts
