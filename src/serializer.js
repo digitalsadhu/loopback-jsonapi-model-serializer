@@ -40,7 +40,7 @@ module.exports = (options = {baseUrl: '/'}) => {
   }
 
   function id (data, model) {
-    return data[lib().primaryKeyForModel(model)]
+    return String(data[lib().primaryKeyForModel(model)])
   }
 
   function type (data, model) {

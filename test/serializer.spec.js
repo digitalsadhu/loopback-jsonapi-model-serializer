@@ -40,7 +40,7 @@ test('id', t => {
 
   const id = serializer().id(data, Post)
 
-  const expected = 1
+  const expected = '1'
   t.deepEqual(id, expected, `serialized should match ${expected}`)
 })
 
@@ -95,7 +95,7 @@ test('resource miminal', t => {
 
   const resource = serializer().resource(data, Empty)
 
-  const expected = {id: 1, type: 'empties', links: {self: '/empties/1'}}
+  const expected = {id: '1', type: 'empties', links: {self: '/empties/1'}}
   t.deepEqual(resource, expected, `serialized should match ${JSON.stringify(expected)}`)
 })
 
@@ -106,7 +106,7 @@ test('resource miminal with baseUrl', t => {
 
   const resource = serializer({baseUrl: 'http://localhost:3000'}).resource(data, Empty)
 
-  const expected = {id: 1, type: 'empties', links: {self: 'http://localhost:3000/empties/1'}}
+  const expected = {id: '1', type: 'empties', links: {self: 'http://localhost:3000/empties/1'}}
   t.deepEqual(resource, expected, `serialized should match ${JSON.stringify(expected)}`)
 })
 
@@ -119,7 +119,7 @@ test('resource with attributes', t => {
   const resource = serializer(options).resource(data, Author)
 
   const expected = {
-    id: 1,
+    id: '1',
     type: 'authors',
     links: {self: 'http://authors.com/api/authors/1'},
     attributes: {name: 'joe bloggs', email: undefined},
@@ -149,7 +149,7 @@ test('included', t => {
   const included = serializer().included(data, Post)
 
   const expected = [{
-    id: 1,
+    id: '1',
     type: 'comments',
     links: {self: '/comments/1'},
     attributes: {comment: 'my comment', title: undefined},
@@ -223,7 +223,7 @@ test('serialize single resource', t => {
 
   t.truthy(resource)
   t.truthy(resource.data)
-  t.is(resource.data.id, 2)
+  t.is(resource.data.id, '2')
   t.is(resource.data.type, 'posts')
 })
 
@@ -240,9 +240,9 @@ test('serialize collection', t => {
 
   t.truthy(resource)
   t.truthy(Array.isArray(resource.data))
-  t.is(resource.data[0].id, 1)
-  t.is(resource.data[1].id, 2)
-  t.is(resource.data[2].id, 3)
+  t.is(resource.data[0].id, '1')
+  t.is(resource.data[1].id, '2')
+  t.is(resource.data[2].id, '3')
   t.is(resource.data[0].type, 'posts')
 })
 
@@ -262,11 +262,11 @@ test('serialize collection', t => {
 
   t.truthy(resource.included)
   t.truthy(resource.data)
-  t.is(resource.data.id, 2)
+  t.is(resource.data.id, '2')
   t.is(resource.data.type, 'posts')
   t.true(Array.isArray(resource.included))
   t.is(resource.included.length, 2)
-  t.is(resource.included[0].id, 1)
+  t.is(resource.included[0].id, '1')
   t.is(resource.included[0].type, 'critics')
 })
 
@@ -283,7 +283,7 @@ test('included ensures uniqueness', t => {
 
   t.true(Array.isArray(collection.included), 'included property should be an array')
   t.is(collection.included.length, 5, 'included array should contain 5 items')
-  t.is(collection.included[2].id, 1, 'Third item should have id 1')
+  t.is(collection.included[2].id, '1', 'Third item should have id 1')
   t.is(collection.included[2].type, 'authors', 'third item should be an author')
   t.truthy(collection.included[2].relationships.comments.data, 'author should have relationship data')
 })
